@@ -4,6 +4,8 @@ Initializes a new transaction.
 
 import gc
 
+from trezor.messages import MoneroTransactionData
+
 from apps.monero import misc, signing
 from apps.monero.layout import confirms
 from apps.monero.signing.state import State
@@ -13,7 +15,6 @@ if False:
     from apps.monero.xmr.types import Sc25519, Ge25519
     from trezor.messages import (
         MoneroAccountPublicAddress,
-        MoneroTransactionData,
         MoneroTransactionDestinationEntry,
         MoneroTransactionInitAck,
         MoneroTransactionRsigData,
@@ -118,7 +119,7 @@ async def init_transaction(
         MoneroTransactionRsigData,
     )
 
-    rsig_data = MoneroTransactionRsigData(offload_type=state.rsig_offload)
+    rsig_data = MoneroTransactionRsigData(offload_type=int(state.rsig_offload))
 
     return MoneroTransactionInitAck(hmacs=hmacs, rsig_data=rsig_data)
 
@@ -279,7 +280,7 @@ def _compute_sec_keys(state: State, tsx_data: MoneroTransactionData):
     from apps.monero.xmr.keccak_hasher import get_keccak_writer
 
     writer = get_keccak_writer()
-    protobuf.dump_message(writer, tsx_data)
+    protobuf.dump_message_writer(writer, tsx_data, MoneroTransactionData)
     writer.write(crypto.encodeint(state.tx_priv))
 
     master_key = crypto.keccak_2hash(

@@ -55,7 +55,7 @@ class CoinJoinAuthorization:
 
 
 def from_cached_message(auth_msg: protobuf.MessageType) -> CoinJoinAuthorization:
-    if not isinstance(auth_msg, AuthorizeCoinJoin):
+    if not AuthorizeCoinJoin.is_type_of(auth_msg):
         raise wire.ProcessError("Appropriate params was not found")
 
     return CoinJoinAuthorization(auth_msg)

@@ -454,3 +454,35 @@ def _count_bytes_list(svalue: list[bytes]) -> int:
     for x in svalue:
         res += len(x)
     return res
+
+
+from trezorutils import (
+    protobuf_decode,
+    protobuf_encode,
+    protobuf_len,
+    protobuf_type_for_wire,
+)
+
+
+def load_message_buffer(
+    buffer: Buffer,
+    msg_wire_type: int,
+    experimental_enabled: bool = True,
+) -> LoadedMessageType:
+    msg_type = protobuf_type_for_wire(msg_wire_type)
+    return protobuf_decode(buffer, msg_type, experimental_enabled)
+
+
+def dump_message_writer(
+    writer: Writer, msg: MessageType, pbuf_type: Type[MessageType]
+) -> None:
+    buffer = bytearray(protobuf_len(pbuf_type, msg))
+    protobuf_encode(buffer, pbuf_type, msg)
+    writer.write(buffer)
+
+
+def dump_message_buffer(msg: MessageType) -> Buffer:
+    pbuf_type = protobuf_type_for_wire(msg.MESSAGE_WIRE_TYPE)
+    buffer = bytearray(protobuf_len(pbuf_type, msg))
+    protobuf_encode(buffer, pbuf_type, msg)
+    return buffer
